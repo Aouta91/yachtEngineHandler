@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>States of engins</title>
+    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <title>Control plane</title>
+
+    <style ></style>
+    <link href="/static/styles.css" rel="stylesheet">
+    <link href="/static/styles.css" rel="stylesheet">
+    <script src="/static/engins.js"></script>
+</head>
+
+<body>
+
+
+    <h1>{header}</h1>
+    <p>{stateRightEngine}</p>
+    <p>{stateLeftEngine}</p>
+
+    <h2>Select Engine mode</h2>
+
+
+    <button onclick="sentRequestTest()">sentRequestTest</button>
+
+
+
+
+
+
+
+    <fieldset>
+        <legend>Is this toggle switch awesome?</legend>
+        <div class="toggle">
+            <input type="radio" name="sizeBy" value="weight" id="sizeWeight" checked="checked" />
+            <label for="sizeWeight">It's pretty, pretty, pretty, pretty good</label>
+            <input type="radio" name="sizeBy" value="dimensions" id="sizeDimensions" />
+            <label for="sizeDimensions">100% yes</label>
+        </div>
+        <p class="status">Toggle is <span>auto width</span><span>full width</span>.</p>
+    </fieldset>
+
+
+
+
+    
+
+
+
+    <div class="row">
+        <div class="column">
+            <h2>Left Engine</h2>
+            <form name="leftEngine" >
+
+                <!-- <div id="leftEngineState_Drive"> -->
+                    <input type="radio" name="languages" checked="checked" value="lE_D" /><span>Drive mode</span>
+                <!-- </div> -->
+                <!-- <div id="leftEngineState_Parking"> -->
+                    <input type="radio" name="languages" value="lE_P" /><span>Parking</span>
+                <!-- </div> -->
+                <!-- <div id="leftEngineState_Reverse"> -->
+                    <input type="radio" name="languages" value="lE_R" /><span>Reverse mode</span>
+                <!-- </div> -->
+               
+                </div>
+            </form>
+        </div>
+        <div class="column">
+            <h2>Right Engine</h2>
+
+            <form name="rightEngine" >
+            
+                <div id="leftEngineState_Drive" >
+                    <input type="radio" name="languages" checked="checked" value="rE_D" /><span>Drive mode</span>
+                </div>
+                <div id="leftEngineState_Parking">
+                    <input type="radio" name="languages" value="rE_P" /><span>Parking</span>
+                </div>
+                <div id="leftEngineState_Reverse">
+                    <input type="radio" name="languages" value="rE_R" /><span>Reverse mode</span>
+                </div>
+            </form>
+
+            <div id="printBlock"></div>
+        </div>
+    </div>
+
+
+
+    <script>
+        engineListner(leftEngine);
+
+        engineListner(rightEngine);
+    </script>
+
+
+</body>
+<html>

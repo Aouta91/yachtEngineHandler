@@ -1,4 +1,83 @@
-def run(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
-    server_address = ('', 8000)
+# https://iximiuz.com/ru/posts/writing-python-web-server-part-3/
+
+
+#!/usr/bin/env python3
+"""
+Very simple HTTP server in python for logging requests
+Usage::
+    ./server.py [<port>]
+"""
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import logging
+
+import cgi
+# import OS
+
+
+# class RenderMarksheet(webapp2.RequestHandler):
+#    def post(self):
+#      regno = self.request.get('content')  # Here's where I extract the data from the form
+#      ...
+#      ...
+#      ...
+#      self.response.out.write(template.render(templates/render.html, template_values))
+
+
+
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    def _set_response(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+
+    def do_GET(self):
+        logging.info("GET request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers))
+        self._set_response()
+        path = open("cgi/index.html", "r").read()
+        # self.wfile.write("GET request for {}".format(self.path).encode('utf-8'))
+        self.wfile.write("GET request for {}".format(path).encode('utf-8'))
+        # self.wfile.write("Hello".format(self.path).encode('utf-8'))
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
+        post_data = self.rfile.read(content_length) # <--- Gets the data itself
+        logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
+                str(self.path), str(self.headers), post_data.decode('utf-8'))
+
+        self._set_response()
+        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+
+def run(server_class=HTTPServer, handler_class=SimpleHTTPRequestHandler, port=8080, ipadress="192.168.1.18"):
+    logging.basicConfig(level=logging.INFO)
+    server_address = ('', port)
     httpd = server_class(server_address, handler_class)
-    httpd.serve_forever()
+    logging.info('Starting httpd...\n')
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
+    logging.info('Stopping httpd...\n')
+
+
+if __name__ == '__main__':
+    # host = sys.argv[1]
+    # port = int(sys.argv[2])
+    # name = sys.argv[3]
+    host = "192.168.1.18"
+    port = 8000
+    name = "yasrv"
+    # serv = MyHTTPServer(host, port, name)
+    try:
+        from sys import argv
+        print(f"trying up as http:\\\\{host}:{port}")
+        # from sys import argv
+        if len(argv) == 2:
+            run(port=int(argv[1]))
+        else:
+
+        #     run()
+            run(port=port, ipadress= port)
+
+    except Exception as e:
+        print('Client serving failed', e)

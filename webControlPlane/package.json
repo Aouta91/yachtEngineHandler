@@ -1,0 +1,27 @@
+{
+  "name": "sviba",
+  "version": "1.0.0",
+  "description": "nodejs image demo",
+  "author": "aouta91 <aouta91alk@gmail.com>",
+  "license": "MIT",
+  "main": "app.js",
+  "keywords": [
+    "nodejs",
+    "bootstrap",
+    "express"
+  ],
+  "scripts" : {
+    "start" : "node app.js",
+    "dev" : "nodemon app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
+  },
+
+  "devDependencies": {
+    "jasmine-node": "^3.0.0"
+  }
+}
+
