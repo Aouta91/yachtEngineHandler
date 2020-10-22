@@ -2,5 +2,6 @@
     "LEDs": {
         "nose_led": 21,
         "tail_led": 20
-    }
+    },
+    "servo_pin": 17
 }

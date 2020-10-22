@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import json
 
-GPIO.setmode(GPIO.BCM)
+from raspberryApi.servo import Servo
 
 
 class BoatHardware:
@@ -10,12 +10,14 @@ class BoatHardware:
         Класс, предоставляющий интерфейс для управления яхтой
         :param config_path: файл, содержащий параметры инициализации для яхты в формате .json
         """
+        GPIO.setmode(GPIO.BCM)
+
         configData = None
         try:
             with open(config_path) as f:
                 configData = json.load(f)
         except FileNotFoundError:
-            configData = {'LEDs': {}}
+            configData = {'LEDs': {}, 'servo_pin': 17}
             configData['LEDs'].update({'nose_led': 21})
             configData['LEDs'].update({'tail_led': 20})
             with open('raspberryApi/hardware_configuration.json', 'w') as f_out:
@@ -24,6 +26,11 @@ class BoatHardware:
 
         self._noseLedPin = configData['LEDs']['nose_led']
         GPIO.setup(self._noseLedPin, GPIO.OUT)
+
+        self._tailLedPin = configData['LEDs']['tail_led']
+        GPIO.setup(self._tailLedPin, GPIO.OUT)
+
+        self._servo = Servo(configData['servo_pin'])
 
     def SetLed(self, led_number: int, state_flag: bool):
         """
@@ -39,7 +46,7 @@ class BoatHardware:
         Устанавливает руль в положение grad
         :param grad: положение руля, град. (- 90, 90)
         """
-        pass
+        self._servo.setAngle(grad + 90)
 
     def SetSpeed(self, speed: float):
         """
