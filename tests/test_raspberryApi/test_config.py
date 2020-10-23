@@ -1,27 +1,24 @@
 import pytest
-from raspberryApi import RaspberryYAMLConfig, RaspberryJSONConfig
-import logging
-import sys
+from raspberryApi import YAMLConfig, JSONConfig
 
 
 def test_yaml():
-    """Test RaspberryYAMLConfig class
+    """Test YAMLConfig class
     """
-    config = RaspberryYAMLConfig()
-    assert config['servo_pin'] == 17
-    config['servo_pin'] = 18
+    config = YAMLConfig(default_config={'test': 1})
+    assert config['test'] == 1
+    config['test'] = 2
     config.save('./tests/test_raspberryApi/raspberry_config.yaml')
-    config_ = RaspberryYAMLConfig('./tests/test_raspberryApi/raspberry_config.yaml')
-    assert config_['servo_pin'] == 18
+    config_ = YAMLConfig('./tests/test_raspberryApi/raspberry_config.yaml')
+    assert config_['test'] == 2
 
 
 def test_json():
-    """Test RaspberryJSONConfig class
+    """Test JSONConfig class
     """
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-    config = RaspberryJSONConfig()
-    assert config['servo_pin'] == 17
-    config['servo_pin'] = 18
+    config = JSONConfig(default_config={'test': 1})
+    assert config['test'] == 1
+    config['test'] = 2
     config.save('./tests/test_raspberryApi/raspberry_config.json')
-    config_ = RaspberryYAMLConfig('./tests/test_raspberryApi/raspberry_config.json')
-    assert config_['servo_pin'] == 18
+    config_ = JSONConfig('./tests/test_raspberryApi/raspberry_config.json')
+    assert config_['test'] == 2

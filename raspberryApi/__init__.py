@@ -1,1 +1,1 @@
-from .config import RaspberryJSONConfig, RaspberryYAMLConfig
+from .config import JSONConfig, YAMLConfig
