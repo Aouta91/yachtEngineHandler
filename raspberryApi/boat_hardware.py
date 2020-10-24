@@ -1,62 +1,80 @@
 import RPi.GPIO as GPIO
-import json
+import time
+import logging
 
-from raspberryApi.servo import Servo
+from .config import JSONConfig
+from .servo import Servo
+from .motor_controller import Controller as MotorController
+
+config_periph = {
+    'led': {
+        'nose': 21,
+        'tail': 20,
+    },
+    'servo': {
+        'pin': 12,
+        'freq_Hz': 50,
+        'min_dc': 2.5,
+        'max_dc': 10
+    },
+    'esc': {
+        'pin': 13,
+        'freq_Hz': 50,
+        'min_dc': 2.5,
+        'max_dc': 10
+    }
+}
 
 
 class BoatHardware:
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str = None):
         """
         Класс, предоставляющий интерфейс для управления яхтой
-        :param config_path: файл, содержащий параметры инициализации для яхты в формате .json
+        :param config_path: файл, содержащий параметры инициализации для яхты
         """
         GPIO.setmode(GPIO.BCM)
 
-        configData = None
-        try:
-            with open(config_path) as f:
-                configData = json.load(f)
-        except FileNotFoundError:
-            configData = {'LEDs': {}, 'servo_pin': 17}
-            configData['LEDs'].update({'nose_led': 21})
-            configData['LEDs'].update({'tail_led': 20})
-            with open('raspberryApi/hardware_configuration.json', 'w') as f_out:
-                json.dump(configData, f_out, indent=4)
-                print(f'create file {f_out.name} with default configuration')
+        config = JSONConfig(default_config=config_periph) if config_path is None else JSONConfig(config_path=config_path)
 
-        self._noseLedPin = configData['LEDs']['nose_led']
+        self._noseLedPin = config['led']['nose']
         GPIO.setup(self._noseLedPin, GPIO.OUT)
 
-        self._tailLedPin = configData['LEDs']['tail_led']
+        self._tailLedPin = config['led']['tail']
         GPIO.setup(self._tailLedPin, GPIO.OUT)
 
-        self._servo = Servo(configData['servo_pin'])
+        self._servo = Servo(config['servo']['pin'], config['servo']['min_dc'], config['servo']['max_dc'])
 
-    def SetLed(self, led_number: int, state_flag: bool):
+        self._motor = MotorController(config['esc']['pin'])
+
+    def set_led(self, led_number: int, state_flag: bool):
         """
         Устанавливает габаритный светодиод led_number в положение state_flag.
-        Пример: SetLed(1, True) зажигает светодиод 1.
-        :param led_number: номер светодиода (0..2)
+        Пример: set_led(21, True) зажигает светодиод GPIO21.
+        :param led_number: номер светодиода из конфигурационного файла
         :param state_flag: состояние светодиода, True - вкл, False - выкл
         """
-        GPIO.output(self._noseLedPin, state_flag)
+        GPIO.output(led_number, state_flag)
 
-    def SetSteeringWheel(self, grad: int):
+    def set_steering_wheel(self, angle: int):
         """
-        Устанавливает руль в положение grad
-        :param grad: положение руля, град. (- 90, 90)
+        Устанавливает руль в положение angle
+        :param angle: положение руля, град. (- 90, 90)
         """
-        self._servo.setAngle(grad + 90)
+        if -90 <= angle <= 90:
+            self._servo.set_angle(angle)
+        else:
+            logging.warning(f'{angle} value isn\'t belongs to range [-90, 90]. Setting angle to 0')
+            self._servo.set_angle(0)
 
-    def SetSpeed(self, speed: float):
+    def set_speed(self, speed: float):
         """
         Устанавливает скорость двигателя яхты, а также прямой и обратный ход.
         Отрицательное значение скорости включает реверс
         :param speed: скорость движения яхты (-1.0, ... , 0.0, ..., 1,0)
         :return:
         """
-        pass
-
-
-if __name__ == '__main__':
-    print('запустите скрпит main.py для работы с яхтой')
+        if -1.0 <= speed <= 1.0:
+            self._motor.set_speed(speed)
+        else:
+            logging.warning(f'{speed} value isn\'t belongs to range [-1.0, 1.0]. Setting speed to 0.0')
+            self._motor.set_speed(0.0)

@@ -2,42 +2,28 @@ import RPi.GPIO as GPIO
 
 
 class Servo:
-    def __init__(self, servoPin: int):
+    def __init__(self, servo_pin: int, min_dc: float, max_dc: float, freq: int = 50):
         """
         Класс, предоставляющий интерфейс для управления сервомотором
-        :param servoPin: управляющий контакт сервопривода
+        :param servo_pin: управляющий контакт сервопривода
+        :param min_dc: минимальное значение duty cycle для PWM
+        :param max_dc: максимальное значение duty cycle для PWM
+        :param freq: частота PWM, Гц
         """
         GPIO.setmode(GPIO.BCM)
-        self._pin = servoPin
-
-        deg0Pulse = 0.5       # ms
-        deg180Pulse = 2.5     # ms
-        freq = 50.0           # 50 Hz
-        period = 1000 / freq
-        k = 100 / period
-        self._deg0Duty = deg0Pulse * k
-        pulseRange = deg180Pulse - deg0Pulse
-        self._dutyRange = pulseRange * k
+        self._pin = servo_pin
+        self._min_dc = min_dc
+        self._max_dc = max_dc
 
         GPIO.setup(self._pin, GPIO.OUT)
         self._pwm = GPIO.PWM(self._pin, freq)
-        self._pwm.start(0)
+        self._pwm.start(self._min_dc)
+        self.set_angle(0)
 
-    def setAngle(self, angle: int):
+    def set_angle(self, angle: int):
         """
         Функция, устанавливающая угол сервопривода
-        :param angle: значение угла в градусах от 0 до 180
+        :param angle: значение угла в градусах от -90 до 90
         """
-        # TODO: придумать как ограничить диапазон углов от 0 до 180
-        if angle < 0:
-            angle = 0
-        elif angle > 180:
-            angle = 180
-
-        duty = self._deg0Duty + (angle / 180) * self._dutyRange
-        # print(f'duty: {duty}')
-        self._pwm.ChangeDutyCycle(duty)
-
-
-if __name__ == '__main__':
-    print('запустите скрпит main.py для работы с яхтой')
+        dc = (angle + 90) * (self._max_dc - self._min_dc) / 180 + self._min_dc
+        self._pwm.ChangeDutyCycle(dc)
