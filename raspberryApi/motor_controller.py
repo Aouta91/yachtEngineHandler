@@ -12,5 +12,5 @@ class Controller:
         GPIO.setmode(GPIO.BCM)
         self._pin = motor_pin
 
-    def set_speed(self, speed: float):
+    def set_speed(self, speed: int):
         pass

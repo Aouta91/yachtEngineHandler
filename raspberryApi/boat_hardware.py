@@ -1,11 +1,14 @@
 import RPi.GPIO as GPIO
-import time
 import logging
+import os
 
 from .config import JSONConfig
 from .servo import Servo
 from .motor_controller import Controller as MotorController
 
+"""
+default peripheral configuration
+"""
 config_periph = {
     'led': {
         'nose': 21,
@@ -18,7 +21,8 @@ config_periph = {
         'max_dc': 10
     },
     'esc': {
-        'pin': 13,
+        'left_motor_pin': 13,
+        'right_motor_pin': 6,
         'freq_Hz': 50,
         'min_dc': 2.5,
         'max_dc': 10
@@ -34,17 +38,21 @@ class BoatHardware:
         """
         GPIO.setmode(GPIO.BCM)
 
-        config = JSONConfig(default_config=config_periph) if config_path is None else JSONConfig(config_path=config_path)
+        config = None
+        if config_path is None:
+            config = JSONConfig(default_config=config_periph)
+            config.save(os.path.join(os.path.abspath(os.getcwd()), 'config_periph.json'))
+        else:
+            config = JSONConfig(config_path=config_path)
 
-        self._noseLedPin = config['led']['nose']
-        GPIO.setup(self._noseLedPin, GPIO.OUT)
-
-        self._tailLedPin = config['led']['tail']
-        GPIO.setup(self._tailLedPin, GPIO.OUT)
+        GPIO.setup(config['led']['nose'], GPIO.OUT)
+        GPIO.setup(config['led']['tail'], GPIO.OUT)
+        self._leds = set(config['led'].values())
 
         self._servo = Servo(config['servo']['pin'], config['servo']['min_dc'], config['servo']['max_dc'])
 
-        self._motor = MotorController(config['esc']['pin'])
+        self._left_motor = MotorController(config['esc']['left_motor_pin'])
+        self._right_motor = MotorController(config['esc']['right_motor_pin'])
 
     def set_led(self, led_number: int, state_flag: bool):
         """
@@ -53,12 +61,15 @@ class BoatHardware:
         :param led_number: номер светодиода из конфигурационного файла
         :param state_flag: состояние светодиода, True - вкл, False - выкл
         """
-        GPIO.output(led_number, state_flag)
+        if led_number not in self._leds:
+            logging.warning(f'wrong GPIO number for LED: {led_number}')
+        else:
+            GPIO.output(led_number, state_flag)
 
     def set_steering_wheel(self, angle: int):
         """
         Устанавливает руль в положение angle
-        :param angle: положение руля, град. (- 90, 90)
+        :param angle: положение руля, град. [- 90, 90]
         """
         if -90 <= angle <= 90:
             self._servo.set_angle(angle)
@@ -66,15 +77,14 @@ class BoatHardware:
             logging.warning(f'{angle} value isn\'t belongs to range [-90, 90]. Setting angle to 0')
             self._servo.set_angle(0)
 
-    def set_speed(self, speed: float):
+    def set_speed(self, speed: int):
         """
         Устанавливает скорость двигателя яхты, а также прямой и обратный ход.
         Отрицательное значение скорости включает реверс
-        :param speed: скорость движения яхты (-1.0, ... , 0.0, ..., 1,0)
-        :return:
+        :param speed: скорость движения яхты [0...20]
         """
-        if -1.0 <= speed <= 1.0:
+        if 0 <= speed <= 20:
             self._motor.set_speed(speed)
         else:
-            logging.warning(f'{speed} value isn\'t belongs to range [-1.0, 1.0]. Setting speed to 0.0')
+            logging.warning(f'{speed} value isn\'t belongs to range [0, 20]. Setting speed to 0')
             self._motor.set_speed(0.0)
