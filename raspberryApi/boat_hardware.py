@@ -6,6 +6,8 @@ from .config import JSONConfig
 from .servo import Servo
 from .motor_controller import Controller as MotorController
 
+logger = logging.getLogger(__name__)
+
 """
 default peripheral configuration
 """
@@ -38,12 +40,8 @@ class BoatHardware:
         """
         GPIO.setmode(GPIO.BCM)
 
-        config = None
-        if config_path is None:
-            config = JSONConfig(default_config=config_periph)
-            config.save(os.path.join(os.path.abspath(os.getcwd()), 'config_periph.json'))
-        else:
-            config = JSONConfig(config_path=config_path)
+        config_path = config_path or os.path.join(os.path.abspath(os.getcwd()), 'config_periph.json')
+        config = JSONConfig(config_path=config_path, default_config=config_periph)
 
         GPIO.setup(config['led']['nose'], GPIO.OUT)
         GPIO.setup(config['led']['tail'], GPIO.OUT)
@@ -62,7 +60,7 @@ class BoatHardware:
         :param state_flag: состояние светодиода, True - вкл, False - выкл
         """
         if led_number not in self._leds:
-            logging.warning(f'wrong GPIO number for LED: {led_number}')
+            logger.warning(f'wrong GPIO number for LED: {led_number}')
         else:
             GPIO.output(led_number, state_flag)
 
@@ -74,17 +72,23 @@ class BoatHardware:
         if -90 <= angle <= 90:
             self._servo.set_angle(angle)
         else:
-            logging.warning(f'{angle} value isn\'t belongs to range [-90, 90]. Setting angle to 0')
+            logger.warning(f'{angle} value isn\'t belongs to range [-90, 90]. Setting angle to 0')
             self._servo.set_angle(0)
 
-    def set_speed(self, speed: int):
+    def set_speed(self, speed: int, type: str):
         """
         Устанавливает скорость двигателя яхты, а также прямой и обратный ход.
         Отрицательное значение скорости включает реверс
         :param speed: скорость движения яхты [0...20]
+        :param type: тип мотора. может принимать значения ["right", "left"]
         """
-        if 0 <= speed <= 20:
-            self._motor.set_speed(speed)
+        if speed < 0 or speed > 20:
+            logger.warning(f'{speed} value isn\'t belongs to range [0, 20]. Setting speed to 0')
+            speed = 0
+
+        if type == "left":
+            self._left_motor.set_speed(speed)
+        elif type == "right":
+            self._right_motor.set_speed(speed)
         else:
-            logging.warning(f'{speed} value isn\'t belongs to range [0, 20]. Setting speed to 0')
-            self._motor.set_speed(0.0)
+            logger.warning(f'Incorrect type:{type}. Type must be \"left\" or \"right\"')

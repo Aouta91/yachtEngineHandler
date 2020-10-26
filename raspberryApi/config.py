@@ -5,6 +5,7 @@ import json
 from typing import Any
 from abc import ABC, abstractmethod
 
+logger = logging.getLogger(__name__)
 
 class Config(ABC):
     """Config base class
@@ -59,11 +60,11 @@ class Config(ABC):
             try:
                 with open(config_path, 'r') as f:
                     self._config: dict = self.load_dict(f)
-                logging.info(f"Config file '{config_path}' was successfully loaded.\nConfiguration:\n{self}.")
+                logger.info(f"Config file '{config_path}' was successfully loaded.\nConfiguration:\n{self}.")
             except Exception as e:
-                logging.error(f"Can not load config file '{config_path}. {e}.")
+                logger.error(f"Can not load config file '{config_path}. {e}.")
         else:
-            logging.warning(f"Can not load config file '{config_path}'. File does not exist. "
+            logger.warning(f"Can not load config file '{config_path}'. File does not exist. "
                             f"Creating config file with default configuration.")
             self.save(config_path)
 
@@ -81,13 +82,13 @@ class Config(ABC):
             try:
                 os.makedirs(config_dir)
             except OSError as e:
-                logging.error(f"Can not create config file directory '{config_dir}. {e}.")
+                logger.error(f"Can not create config file directory '{config_dir}. {e}.")
         try:
             with open(config_path, 'w') as f:
                 self.dump_dict(self._config, f)
-            logging.info(f"Config file '{config_path}' was successfully saved.\nConfiguration:\n{self}.")
+            logger.info(f"Config file '{config_path}' was successfully saved.\nConfiguration:\n{self}.")
         except Exception as e:
-            logging.error(f"Can not save config file '{config_path}. {e}.")
+            logger.error(f"Can not save config file '{config_path}. {e}.")
 
     @staticmethod
     @abstractmethod
