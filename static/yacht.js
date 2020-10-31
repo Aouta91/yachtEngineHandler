@@ -113,9 +113,5 @@ $(document).ready(function(){
             complete: function() {setTimeout(telemetry_worker, 1000);}
         });
     })();
-    (function camera_worker(){
-        set_image('/camera?timestamp=' + new Date().getTime());
-        setTimeout(camera_worker, 1000);
-    })();
     zero_control();
 });
