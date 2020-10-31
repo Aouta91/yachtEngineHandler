@@ -11,6 +11,7 @@ $(document).ready(function(){
     var telemetry_led1 = $("#telemetryLed1")
     var telemetry_led2 = $("#telemetryLed2")
     var alert_container = $("#alert-container")
+    var image = $("#image")
     var get_control_speed = function(){return parseFloat(control_speed.val());};
     var get_control_speed_num = function(){return parseFloat(control_speed_num.html());};
     var get_control_angle = function(){return parseFloat(control_angle.val());};
@@ -31,6 +32,7 @@ $(document).ready(function(){
     var set_telemetry_angle = function(val){telemetry_angle.html(String(val));};
     var set_telemetry_led1 = function(val){if(val)telemetry_led1.html("on");else telemetry_led1.html("off");};
     var set_telemetry_led2 = function(val){if(val)telemetry_led2.html("on");else telemetry_led2.html("off");};
+    var set_image = function(val){image.attr('src', val);}
     var unique_id = function(prefix) {
         return prefix + Math.floor(Math.random() * 1000) + Date.now();
     };
@@ -103,13 +105,17 @@ $(document).ready(function(){
         e.preventDefault();
         zero_control();
     });
-    (function worker(){
+    (function telemetry_worker(){
         $.ajax({
             type: 'get',
             url: '/telemetry',
             success: function(data) {update_telemetry(data);},
-            complete: function() {setTimeout(worker, 1000);}
+            complete: function() {setTimeout(telemetry_worker, 1000);}
         });
+    })();
+    (function camera_worker(){
+        set_image('/camera?timestamp=' + new Date().getTime());
+        setTimeout(camera_worker, 1000);
     })();
     zero_control();
 });
