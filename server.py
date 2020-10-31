@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-import io
 from pydantic import BaseModel
 
 from fake_boat import FakeBoat
-from webcamera import WebCamera
 
 
 class Item(BaseModel):
@@ -18,7 +16,6 @@ class Item(BaseModel):
 
 boat = FakeBoat()
 app = FastAPI()
-cam = WebCamera(0)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -46,13 +43,3 @@ async def root():
                 "led1": boat.get_led(0),
                 "led2": boat.get_led(1)}
     return JSONResponse(content=jsonable_encoder(response))
-
-
-@app.get("/camera")
-async def root():
-    img = cam(color_format="bgr", data_format="encoded")
-    if img is not None:
-        io_buf = io.BytesIO(img)
-        io_buf.seek(0)
-        return StreamingResponse(io_buf, media_type="image/jpeg",
-                                 headers={'Content-Disposition': 'inline; filename="frame.jpg"'})
