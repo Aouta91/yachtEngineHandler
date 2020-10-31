@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Metadata -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.1.1">
+    <!-- Title -->
+    <title>Yacht</title>
+    <!-- Bootstrap core CSS -->
+    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="static/yacht.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+              <a class="navbar-brand" href="#">Yacht</a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                  <a class="nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+                  <a class="nav-link" href="#">Features</a>
+                  <a class="nav-link" href="#">Pricing</a>
+                  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                </div>
+              </div>
+        </nav>
+    </header>
+    <main role="main">
+        <div class="container">
+            <div class="row">
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col">
+                            <hr class="my-4">
+                            <h1 class="display-8">Controls</h1>
+                            <hr class="my-4">
+                            <form id="controlForm">
+                                <div class="form-group">
+                                    <label for="controlSpeed">Speed <span class="badge badge-primary" id="controlSpeedNum">0.0</span></label>
+                                    <input type="range" class="custom-range" min="-20" max="20" step="1" id="controlSpeed">
+                                </div>
+                                <div class="form-group">
+                                    <label for="controlAngle">Angle <span class="badge badge-primary" id="controlAngleNum">0.0</span></label>
+                                    <input type="range" class="custom-range" min="-90" max="90" step="1" id="controlAngle">
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                      <input type="checkbox" class="custom-control-input" id="controlLed1">
+                                      <label class="custom-control-label" for="controlLed1">Led 1</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control custom-switch">
+                                      <input type="checkbox" class="custom-control-input" id="controlLed2">
+                                      <label class="custom-control-label" for="controlLed2">Led 2</label>
+                                    </div>
+                                </div>
+                                <div class="form-group align-self-center text-center">
+                                    <button id="controlStop" type="button" class="btn btn-danger" style="min-width: 100px">Stop</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <hr class="my-4">
+                            <h1 class="display-8">Telemetry</h1>
+                            <hr class="my-4">
+                            <table class="table table-hover" id="telemetryTable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" width="200px">Name</th>
+                                        <th scope="col">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                      <td>Speed</td>
+                                      <td id="telemetrySpeed">0.0</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Angle</td>
+                                      <td id="telemetryAngle">0.0</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Led 1</td>
+                                      <td id="telemetryLed1">off</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Led 2</td>
+                                      <td id="telemetryLed2">off</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4" id="alert-container">
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="text-muted">
+    </footer>
+    <script src="static/jquery/jquery.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="static/yacht.js"></script>
+</body>
+</html>
