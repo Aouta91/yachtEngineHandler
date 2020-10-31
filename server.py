@@ -17,8 +17,8 @@ class Item(BaseModel):
 
 
 boat = FakeBoat()
-app = FastAPI()
 cam = WebCamera(0)
+app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -48,7 +48,7 @@ async def root():
     return JSONResponse(content=jsonable_encoder(response))
 
 
-@app.get("/camera")
+@app.get("/photo")
 async def root():
     img = cam(color_format="bgr", data_format="encoded")
     if img is not None:
@@ -56,3 +56,15 @@ async def root():
         io_buf.seek(0)
         return StreamingResponse(io_buf, media_type="image/jpeg",
                                  headers={'Content-Disposition': 'inline; filename="frame.jpg"'})
+
+
+def gen(camera):
+    while True:
+        frame = camera(color_format="bgr", data_format="encoded")
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame.tobytes() + b'\r\n')
+
+
+@app.get('/video')
+async def video_feed():
+    return StreamingResponse(gen(cam), media_type='multipart/x-mixed-replace; boundary=frame')
