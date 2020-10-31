@@ -29,12 +29,11 @@ async def root():
 
 @app.post("/control")
 async def root(item: Item):
-    data = item
-    boat.set_led(data.led1, 0)
-    boat.set_led(data.led2, 1)
-    boat.set_speed(data.speed)
-    boat.set_angle(data.angle)
-    return {"message": "Set: "+str(boat)}
+    boat.set_led(item.led1, 0)
+    boat.set_led(item.led2, 1)
+    boat.set_speed(item.speed)
+    boat.set_angle(item.angle)
+    return {"message": "Set: " + str(boat)}
 
 
 @app.get("/telemetry")
@@ -43,5 +42,4 @@ async def root():
                 "angle": boat.get_angle(),
                 "led1": boat.get_led(0),
                 "led2": boat.get_led(1)}
-    print("sending telemetry: ", response)
     return JSONResponse(content=jsonable_encoder(response))
