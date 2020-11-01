@@ -6,74 +6,15 @@ const Emitter = require("events");
 const EventEmitter = require("events");
 
 
-
-function initEvent(){
-    let emitter = new Emitter();
-    let eventName = "turner";
-    let directionCmd ="Right";
-
-
-    // emitter.emit(eventName, "Привет пир!");
-
-    console.log("Right");
-    emitter.on(eventName, function(directionCmd){
-        appendControlCommands(direction = directionCmd);
-        // appendControlCommands(directionCmd = "Left");
-        // console.log("Hello all!");
-        console.log("Привет!, right");
-    });
-    
-    // emitter.on(eventName, function(){
-    //     console.log("Привет!");
-    // });
-    
-    emitter.emit(eventName, "Test");
-};
-
-
-
-
-
-
-
-function writeControlCommands(){
-    fs.writeFile("hello.txt", "Hello мир!", function(error){
- 
-        if(error) throw error; // если возникла ошибка
-        console.log("Асинхронная запись файла завершена. Содержимое файла:");
-        let data = fs.readFileSync("hello.txt", "utf8");
-        console.log(data);  // выводим считанные данные
-    });
-};
-
 function appendControlCommands(direction){
-    fs.appendFileSync("hello.txt", direction);
+    fs.appendFileSync("IOstreams/out", direction+"\n");
     console.log(direction);
 };
-
-
-
-
 
 // создаем приложение
 const app = express();
 
-// app.get("/static", express.static(__dirname + "/public"));
-// app.get('engins.js', function (req, res) {
-//     fs.readFile("public/engins.js", "utf8", function(error, data){
-//         // let header = "Главная страница";
 
-//         // // data = data.replace("{header}", header);
-//         // data = data.replace("{header}", header).replace("{stateRightEngine}", stateRightEngine).replace("{stateLeftEngine}", stateLeftEngine);
-//         // let enginsStateJson = JSON.stringify({stateRightEngine: stateRightEngine, stateLeftEngine: stateLeftEngine});
-//         response.send(data);
-//         // response.send(enginsStateJson);
-//     });
-//   })
-
-
-
-//write to log requests
 app.use(function(request, response, next){
      
     let now = new Date();
@@ -115,10 +56,6 @@ app.use("/", function(request, response, next){
     });
     console.log( stateRightEngine  +stateLeftEngine) ;
     appendControlCommands(stateRightEngine  +stateLeftEngine)
-    // next();
-// 
-    // console.log( request.query.stateRightEngine);
-    // response.send(data);
 
 });
 
@@ -158,8 +95,8 @@ app.use("/statesHandles", function(request, response, next){
 // начинаем прослушивание подключений на 3000 порту
 // let message = "Hello World!";
 
-// app.listen(3000, "127.0.0.1",()=>{
-app.listen(3000, "192.168.198.147",()=>{
+app.listen(3000, "127.0.0.1",()=>{
+// app.listen(3000, "192.168.198.148",()=>{
     console.log("Сервер начал прослушивание запросов");
 });
 
