@@ -7,6 +7,7 @@ from .servo import Servo
 from .motor_controller import Controller as MotorController
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 """
 default peripheral configuration
@@ -45,7 +46,7 @@ class BoatHardware:
 
         GPIO.setup(config['led']['nose'], GPIO.OUT)
         GPIO.setup(config['led']['tail'], GPIO.OUT)
-        self._leds = set(config['led'].values())
+        self._leds = {x: False for x in config['led'].values()}
 
         self._servo = Servo(config['servo']['pin'], config['servo']['min_dc'], config['servo']['max_dc'])
 
@@ -59,10 +60,20 @@ class BoatHardware:
         :param led_number: номер светодиода из конфигурационного файла
         :param state_flag: состояние светодиода, True - вкл, False - выкл
         """
-        if led_number not in self._leds:
+        if led_number not in self._leds.keys():
             logger.warning(f'wrong GPIO number for LED: {led_number}')
         else:
             GPIO.output(led_number, state_flag)
+            self._leds[led_number] = state_flag
+
+    def led_status(self):
+        """
+        Возвращает словарь с информацией о состоянии светодиодов вида {led_number : state},
+        где led_number : int - номер светодиода из конфигурационного файла,
+        state : bool - состояние светодиода, True/False
+        :return: {'led_number' : bool}
+        """
+        return dict(self._leds)
 
     def set_steering_wheel(self, angle: int):
         """

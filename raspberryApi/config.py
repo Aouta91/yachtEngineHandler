@@ -6,6 +6,8 @@ from typing import Any
 from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class Config(ABC):
     """Config base class
