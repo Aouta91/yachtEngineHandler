@@ -67,6 +67,7 @@ class BoatHardware:
             GPIO.output(led_number, state_flag)
             self._leds[led_number] = state_flag
 
+    @property
     def led_status(self):
         """
         Возвращает словарь с информацией о состоянии светодиодов вида {led_pin : state}, где
@@ -74,7 +75,7 @@ class BoatHardware:
         state: bool, состояние светодиода, True/False
         :return: dict
         """
-        return dict(self._leds)
+        return self._leds.copy()
 
     def set_steering_wheel(self, angle: int):
         """
@@ -87,6 +88,7 @@ class BoatHardware:
             logger.warning(f'{angle} value isn\'t belongs to range [-90, 90]. Setting angle to 0')
             self._servo.set_angle(0)
 
+    @property
     def steering_wheel_status(self):
         """
         Возвращает словарь с информацией о положении руля вида {pin : angle}, где
@@ -113,6 +115,7 @@ class BoatHardware:
         else:
             logger.warning(f'Incorrect type:{type}. Type must be \"left\" or \"right\"')
 
+    @property
     def motor_status(self):
         """
         Возвращает словарь с информацией о состоянии моторов вида {'left' : {pin : speed}, 'right' : {pin: speed}}, где
@@ -129,7 +132,7 @@ class BoatHardware:
         :return: str
         """
         result = "BoatHardware current state:\n"
-        result += "leds: " + str(self.led_status()) + "\n"
-        result += "steering wheel: " + str(self.steering_wheel_status()) + "\n"
-        result += "motors: " + str(self.motor_status()) + "\n"
+        result += f"leds: {self.led_status}\n"
+        result += f"steering wheel: {self.steering_wheel_status}\n"
+        result += f"motors: {self.motor_status}\n"
         return result
