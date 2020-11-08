@@ -6,8 +6,8 @@ from .config import JSONConfig
 from .servo import Servo
 from .motor_controller import MotorController as MotorController
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 """
 default peripheral configuration
@@ -54,6 +54,22 @@ class BoatHardware:
         self._left_motor = MotorController(config['esc']['left_motor_pin'])
         self._right_motor = MotorController(config['esc']['right_motor_pin'])
 
+    @property
+    def leds(self):
+        """
+        Возвращает словарь с информацией о состоянии светодиодов вида
+        {'led1': {'pin': ..., 'state': ...}, {'led2': {'pin': ..., 'state': ...}},..., {'ledN': ...}}, где
+        N - количество используемых светодиодов
+        'pin': номер пина светодиода из конфигурационного файла, int
+        'state': состояние светодиода, True/False, bool
+        :return: dict
+        """
+        leds_state = {}
+        keys = list(self._leds.keys())
+        for i in range(len(keys)):
+            leds_state[f"led{i}"] = {'pin': keys[i], 'state': self._leds[keys[i]]}
+        return leds_state
+
     def set_led(self, led_number: int, state_flag: bool):
         """
         Устанавливает габаритный светодиод led_number в положение state_flag.
@@ -62,20 +78,20 @@ class BoatHardware:
         :param state_flag: состояние светодиода, True - вкл, False - выкл
         """
         if led_number not in self._leds.keys():
-            logger.warning(f'wrong GPIO number for LED: {led_number}')
+            logger.warning(f'Wrong GPIO number for LED: {led_number}')
         else:
             GPIO.output(led_number, state_flag)
             self._leds[led_number] = state_flag
 
     @property
-    def led_status(self):
+    def steering_wheel(self):
         """
-        Возвращает словарь с информацией о состоянии светодиодов вида {led_pin : state}, где
-        led_pin: int, номер пина светодиода из конфигурационного файла,
-        state: bool, состояние светодиода, True/False
+        Возвращает словарь с текущим состоянием сервопривода с ключами 'pin', 'angle', где
+        'pin': управляющий пин сервопривода, int
+        'angle': положение сервопривода, град [-90, 90], int
         :return: dict
         """
-        return self._leds.copy()
+        return self._servo.angle
 
     def set_steering_wheel(self, angle: int):
         """
@@ -83,20 +99,22 @@ class BoatHardware:
         :param angle: положение руля, град. [- 90, 90]
         """
         if -90 <= angle <= 90:
-            self._servo.set_angle(angle)
+            self._servo.angle = angle
         else:
-            logger.warning(f'{angle} value isn\'t belongs to range [-90, 90]. Setting angle to 0')
-            self._servo.set_angle(0)
+            logger.warning(f'Angle {angle} isn\'t belongs to range [-90, 90]. Setting angle to 0')
+            self._servo.angle = 0
 
     @property
-    def steering_wheel_status(self):
+    def motors(self):
         """
-        Возвращает словарь с информацией о положении руля вида {pin : angle}, где
-        pin: int, номер управляющего пина руля из конфигурационного файла,
-        angle: int, положение руля [-90, 90]
+        Возвращает словарь с информацией о состоянии моторов вида
+        {'left' : {'pin' : ...,  'speed': ...}, 'right' : {'pin': ..., 'speed': ...}}, где
+        'left', 'right': str - ключи в словаре для левого и правого двигателя соответсвтенно
+        'pin': управляющий пин двигателя, int
+        'speed': скорость двигателя в процентах, [0, 100], int
         :return: dict
         """
-        return self._servo.state()
+        return {'left': self._left_motor.speed, 'right': self._right_motor.speed}
 
     def set_speed(self, speed: int, type: str):
         """
@@ -105,26 +123,15 @@ class BoatHardware:
         :param type: тип мотора. может принимать значения ["right", "left"]
         """
         if speed < 0 or speed > 100:
-            logger.warning(f'{speed} value isn\'t belongs to range [0, 100]. Setting speed to 0')
-            speed = 0
+            logger.warning(f'Speed {speed} isn\'t belongs to range [0, 100]')
+            speed = max(0, min(100, speed))
 
         if type == "left":
-            self._left_motor.set_speed(speed)
+            self._left_motor.speed = speed
         elif type == "right":
-            self._right_motor.set_speed(speed)
+            self._right_motor.speed = speed
         else:
-            logger.warning(f'Incorrect type:{type}. Type must be \"left\" or \"right\"')
-
-    @property
-    def motor_status(self):
-        """
-        Возвращает словарь с информацией о состоянии моторов вида {'left' : {pin : speed}, 'right' : {pin: speed}}, где
-        'left', 'right': str - ключи в словаре для левого и правого двигателя соответсвтенно,
-        pin: int - номер управляющего пина двигателя из конфигурационного файла,
-        speed: int - скорость двигателя в условных единицах, [0, 100]
-        :return: dict
-        """
-        return {'left': self._left_motor.state(), 'right': self._right_motor.state()}
+            logger.warning(f'Incorrect motor type:{type}. Type must be \"left\" or \"right\"')
 
     def __str__(self):
         """
@@ -132,7 +139,7 @@ class BoatHardware:
         :return: str
         """
         result = "BoatHardware current state:\n"
-        result += f"leds: {self.led_status}\n"
-        result += f"steering wheel: {self.steering_wheel_status}\n"
-        result += f"motors: {self.motor_status}\n"
+        result += f"leds: {self.leds}\n"
+        result += f"steering wheel: {self.steering_wheel}\n"
+        result += f"motors: {self.motors}\n"
         return result

@@ -2,7 +2,6 @@ import RPi.GPIO as GPIO
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class MotorController:
@@ -16,15 +15,17 @@ class MotorController:
         self._pin = motor_pin
         self._speed = 0
 
-    def set_speed(self, speed: int):
-        logger.info(f'setting motor speed to {speed} value')
-        self._speed = speed
-
-    def state(self):
+    @property
+    def speed(self):
         """
-        Возвращает словарь с текущим состоянием двигателя вида {pin: speed}, где
-        pin: int, управляющий пин двигателя
-        state: int, скорость двигателя в процентах, [0, 100]
+        Возвращает словарь с текущим состоянием двигателя с ключами 'pin', 'speed', где
+        'pin': управляющий пин двигателя, int
+        'speed': скорость двигателя в процентах, [0, 100], int
         :return: dict
         """
-        return {self._pin: self._speed}
+        return {'pin': self._pin, 'speed': self._speed}
+
+    @speed.setter
+    def speed(self, speed: int):
+        logger.info(f'setting motor speed to {speed} value')
+        self._speed = speed

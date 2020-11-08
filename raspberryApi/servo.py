@@ -19,9 +19,20 @@ class Servo:
         self._pwm = GPIO.PWM(self._pin, freq)
         self._pwm.start(self._min_dc)
         self._angle = 0
-        self.set_angle(self._angle)
+        self.angle = self._angle
 
-    def set_angle(self, angle: int):
+    @property
+    def angle(self):
+        """
+        Возвращает словарь с текущим состоянием сервопривода с ключами 'pin', 'angle', где
+        'pin': управляющий пин сервопривода, int
+        'angle': положение сервопривода, град [-90, 90], int
+        :return: dict
+        """
+        return {'pin': self._pin, 'angle': self._angle}
+
+    @angle.setter
+    def angle(self, angle: int):
         """
         Функция, устанавливающая угол сервопривода
         :param angle: значение угла в градусах от -90 до 90
@@ -29,12 +40,3 @@ class Servo:
         self._angle = angle
         dc = (self._angle + 90) * (self._max_dc - self._min_dc) / 180 + self._min_dc
         self._pwm.ChangeDutyCycle(dc)
-
-    def state(self):
-        """
-        Возвращает словарь с текущим состоянием сервопривода вида {pin: angle}, где
-        pin: int, управляющий пин сервопривода,
-        angle: int, положение сервопривода, град [-90, 90]
-        :return: dict
-        """
-        return {self._pin: self._angle}

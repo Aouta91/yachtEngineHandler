@@ -4,34 +4,31 @@ from raspberryApi.boat_hardware import BoatHardware
 
 def test_set_steering_wheel():
     yacht = BoatHardware()
-    steering_wheel_status = yacht.steering_wheel_status
-    pin = list(steering_wheel_status.keys())[0]
-    assert steering_wheel_status[pin] == 0
+    steering_wheel = yacht.steering_wheel
+    assert steering_wheel['angle'] == 0
 
     angle = 45
     yacht.set_steering_wheel(angle)
-    steering_wheel_status = yacht.steering_wheel_status
-    assert steering_wheel_status[pin] == angle
+    steering_wheel = yacht.steering_wheel
+    assert steering_wheel['angle'] == angle
 
 
 def test_set_led():
     yacht = BoatHardware()
-    led_status = yacht.led_status
-    pin = list(led_status.keys())[0]
-    assert led_status[pin] is False
+    leds = yacht.leds
+    assert leds['led1']['state'] is False
 
-    yacht.set_led(pin, True)
-    led_status = yacht.led_status
-    assert led_status[pin] is True
+    yacht.set_led(leds['led1']['pin'], True)
+    leds = yacht.leds
+    assert leds['led1']['state'] is True
 
 
 def test_set_speed():
     yacht = BoatHardware()
-    motor_status = yacht.motor_status
-    pin = list(motor_status['right'].keys())[0]
-    assert motor_status['right'][pin] == 0
+    motors = yacht.motors
+    assert motors['right']['speed'] == 0
 
     speed = 37
     yacht.set_speed(speed, 'right')
-    motor_status = yacht.motor_status
-    assert motor_status['right'][pin] == speed
+    motors = yacht.motors
+    assert motors['right']['speed'] == speed
