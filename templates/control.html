@@ -1,0 +1,28 @@
+<hr class="my-4">
+<h1 class="display-8">Controls</h1>
+<hr class="my-4">
+<form id="controlForm">
+    <div class="form-group">
+        <label for="controlSpeed">{{ speed['label'] }} <span class="badge badge-primary" id="controlSpeedNum">{{ speed['def'] }}</span></label>
+        <input type="range" class="custom-range" min="{{ speed['min'] }}" max="{{ speed['max'] }}" step="{{ speed['step'] }}" id="controlSpeed">
+    </div>
+    <div class="form-group">
+        <label for="controlAngle">{{ angle['label'] }} <span class="badge badge-primary" id="controlAngleNum">{{ angle['def'] }}</span></label>
+        <input type="range" class="custom-range" min="{{ angle['min'] }}" max="{{ angle['max'] }}" step="{{ angle['step'] }}" id="controlAngle">
+    </div>
+    <div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="controlLed1" {{ "checked" if led1['def'] else "" }}>
+          <label class="custom-control-label" for="controlLed1">{{ led1['label'] }}</label>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="controlLed2" {{ "checked" if led2['def'] else "" }}>
+          <label class="custom-control-label" for="controlLed2">{{ led2['label'] }}</label>
+        </div>
+    </div>
+    <div class="form-group align-self-center text-center">
+        <button id="controlStop" type="button" class="btn btn-danger" style="min-width: 100px">Stop</button>
+    </div>
+</form>
