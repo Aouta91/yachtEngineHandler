@@ -1,0 +1,29 @@
+<hr class="my-4">
+<h1 class="display-8">Telemetry</h1>
+<hr class="my-4">
+<table class="table table-hover" id="telemetryTable">
+    <thead>
+        <tr>
+            <th scope="col" width="200px">Name</th>
+            <th scope="col">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>{{ speed['label'] }}</td>
+          <td id="telemetrySpeed">speed['def']</td>
+        </tr>
+        <tr>
+          <td>{{ angle['label'] }}</td>
+          <td id="telemetryAngle">angle['def']</td>
+        </tr>
+        <tr>
+          <td>{{ led1['label'] }}</td>
+          <td id="telemetryLed1">{{ "on" if led1['def'] else "off" }}</td>
+        </tr>
+        <tr>
+          <td>{{ led2['label'] }}</td>
+          <td id="telemetryLed2">{{ "on" if led2['def'] else "off" }}</td>
+        </tr>
+    </tbody>
+</table>
