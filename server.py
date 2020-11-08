@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 import io
 from pydantic import BaseModel
 
@@ -20,14 +21,23 @@ boat = FakeBoat()
 cam = WebCamera(0)
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/")
-async def root():
-    page = ""
-    with open("index.html") as f:
-        page = f.read()
-    return HTMLResponse(content=page)
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    # Это все для примера, как можно использовать шаблонизацию. Конечный вариант передаваемых параметров обсуждаем.
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "telemetry_url": "/telemetry",
+        "control_url": "/control",
+        "video_url": "/video",
+        "telemetry_period": 1000,
+        "angle": {"type": "range", "label": "Angle", "def": 0.0, "min": -90, "max": 90, "step": 1},
+        "speed": {"type": "range", "label": "Speed", "def": 0.0, "min": -20, "max": 20, "step": 1},
+        "led1": {"type": "switch", "label": "Led 1", "def": False},
+        "led2": {"type": "switch", "label": "Led 2", "def": False}
+    })
 
 
 @app.post("/control")

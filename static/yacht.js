@@ -1,4 +1,19 @@
 $(document).ready(function(){
+    // var place = [-110, 45];
+    // var point = new Point(place);
+    var map = new ol.Map({
+        target: 'map',
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM()
+            })
+        ],
+        view: new ol.View({
+            // TODO autoUpdate,
+            center: ol.proj.fromLonLat([37.4783, 55.82995]),
+            zoom: 15
+        })
+    });
     var control_speed = $("#controlSpeed")
     var control_speed_num = $("#controlSpeedNum")
     var control_angle = $("#controlAngle")
@@ -37,11 +52,11 @@ $(document).ready(function(){
         return prefix + Math.floor(Math.random() * 1000) + Date.now();
     };
     var bootstrap_alert = function(type, message){
-        var id = unique_id("alert")
-        alert_container.prepend(
-            '<div id="'+id+'" class="alert alert-'+type+'" role="alert" style="margin: 5px; padding: 5px; font-size: 8pt;">'+message+'</div>'
-        );
-        setTimeout(function(){$("#"+id).fadeOut(1000, function(){$(this).remove()});}, 1000);
+//        var id = unique_id("alert")
+//        alert_container.prepend(
+//            '<div id="'+id+'" class="alert alert-'+type+'" role="alert" style="margin: 5px; padding: 5px; font-size: 8pt;">'+message+'</div>'
+//        );
+//        setTimeout(function(){$("#"+id).fadeOut(1000, function(){$(this).remove()});}, 1000);
     };
     var submit_control = function(){
         data = {
@@ -53,7 +68,7 @@ $(document).ready(function(){
         str_data = JSON.stringify(data);
         $.ajax({
             type: 'post',
-            url: '/control',
+            url: control_url,
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
             data: str_data,
@@ -108,9 +123,9 @@ $(document).ready(function(){
     (function telemetry_worker(){
         $.ajax({
             type: 'get',
-            url: '/telemetry',
+            url: telemetry_url,
             success: function(data) {update_telemetry(data);},
-            complete: function() {setTimeout(telemetry_worker, 1000);}
+            complete: function() {setTimeout(telemetry_worker, telemetry_period);}
         });
     })();
     zero_control();
