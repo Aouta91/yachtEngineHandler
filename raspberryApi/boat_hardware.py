@@ -67,7 +67,7 @@ class BoatHardware:
         leds_state = {}
         keys = list(self._leds.keys())
         for i in range(len(keys)):
-            leds_state[f"led{i}"] = {'pin': keys[i], 'state': self._leds[keys[i]]}
+            leds_state[f"led{i+1}"] = {'pin': keys[i], 'state': self._leds[keys[i]]}
         return leds_state
 
     def set_led(self, led_number: int, state_flag: bool):
