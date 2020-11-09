@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 import io
 from pydantic import BaseModel
 
-from fake_boat import FakeBoat
+from raspberryApi.boat_hardware import BoatHardware
 from webcamera import WebCamera
 
 
@@ -17,7 +17,7 @@ class Item(BaseModel):
     led2: bool
 
 
-boat = FakeBoat()
+boat = BoatHardware()
 cam = WebCamera(0)
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -42,19 +42,26 @@ async def root(request: Request):
 
 @app.post("/control")
 async def root(item: Item):
-    boat.set_led(item.led1, 0)
-    boat.set_led(item.led2, 1)
-    boat.set_speed(item.speed)
-    boat.set_angle(item.angle)
+    leds = boat.leds
+    if len(leds) >= 2:
+        boat.set_led(leds['led1']['pin'], item.led1)
+        boat.set_led(leds['led2']['pin'], item.led2)
+
+    boat.set_steering_wheel(item.angle)
+
+    boat.set_speed(item.speed, 'left')
+    boat.set_speed(item.speed, 'right')
+
     return {"message": "Set: " + str(boat)}
 
 
 @app.get("/telemetry")
 async def root():
-    response = {"speed": boat.get_speed(),
-                "angle": boat.get_angle(),
-                "led1": boat.get_led(0),
-                "led2": boat.get_led(1)}
+    leds = boat.leds
+    response = {"speed": boat.motors['left']['speed'],
+                "angle": boat.steering_wheel['angle'],
+                "led1": leds['led1']['state'],
+                "led2": leds['led2']['state']}
     return JSONResponse(content=jsonable_encoder(response))
 
 

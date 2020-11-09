@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Controller:
+class MotorController:
     def __init__(self, motor_pin: int, freq: int = 50):
         """
         Класс, предоставляющий интерфейс для управления бесколлекторным двигателем через ESC
@@ -13,6 +13,19 @@ class Controller:
         """
         GPIO.setmode(GPIO.BCM)
         self._pin = motor_pin
+        self._speed = 0
 
-    def set_speed(self, speed: int):
+    @property
+    def speed(self):
+        """
+        Возвращает словарь с текущим состоянием двигателя с ключами 'pin', 'speed', где
+        'pin': управляющий пин двигателя, int
+        'speed': скорость двигателя в процентах, [0, 100], int
+        :return: dict
+        """
+        return {'pin': self._pin, 'speed': self._speed}
+
+    @speed.setter
+    def speed(self, speed: int):
         logger.info(f'setting motor speed to {speed} value')
+        self._speed = speed

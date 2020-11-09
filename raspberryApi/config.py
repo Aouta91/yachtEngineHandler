@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
+
 class Config(ABC):
     """Config base class
     """
