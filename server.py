@@ -4,7 +4,6 @@ from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import io
-import random
 from pydantic import BaseModel
 
 from raspberryApi.boat_hardware import BoatHardware
@@ -42,7 +41,7 @@ async def root(request: Request):
 
 
 @app.post("/control")
-async def control(item: Item):
+async def root(item: Item):
     leds = boat.leds
     if len(leds) >= 2:
         boat.set_led(leds['led1']['pin'], item.led1)
@@ -56,39 +55,18 @@ async def control(item: Item):
     return {"message": "Set: " + str(boat)}
 
 
-def gen_route(start_point):
-    home = start_point
-    route = [home]
-    current = home
-    while True:
-        dx = random.random() * 0.01 - 0.005
-        dy = random.random() * 0.01 - 0.005
-        current = (current[0]+dx, current[1]+dy)
-        route.append(current)
-        if len(route) > 20:
-            del route[1]
-        yield current, home, route
-
-
-route_generator = gen_route((55.82995, 37.4783))
-
-
 @app.get("/telemetry")
-async def telemetry():
+async def root():
     leds = boat.leds
-    current, home, route = next(route_generator)
     response = {"speed": boat.motors['left']['speed'],
                 "angle": boat.steering_wheel['angle'],
                 "led1": leds['led1']['state'],
-                "led2": leds['led2']['state'],
-                "current_lat_lng": current,
-                "home_lat_lng": home,
-                "route_lat_lng": route}
+                "led2": leds['led2']['state']}
     return JSONResponse(content=jsonable_encoder(response))
 
 
 @app.get("/photo")
-async def photo():
+async def root():
     img = cam(color_format="bgr", data_format="encoded")
     if img is not None:
         io_buf = io.BytesIO(img)
@@ -97,7 +75,7 @@ async def photo():
                                  headers={'Content-Disposition': 'inline; filename="frame.jpg"'})
 
 
-def gen_stream(camera):
+def gen(camera):
     while True:
         frame = camera(color_format="bgr", data_format="encoded")
         yield (b'--frame\r\n'
@@ -105,5 +83,5 @@ def gen_stream(camera):
 
 
 @app.get('/video')
-async def video():
-    return StreamingResponse(gen_stream(cam), media_type='multipart/x-mixed-replace; boundary=frame')
+async def video_feed():
+    return StreamingResponse(gen(cam), media_type='multipart/x-mixed-replace; boundary=frame')
