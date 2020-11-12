@@ -1,19 +1,44 @@
 $(document).ready(function(){
-    // var place = [-110, 45];
-    // var point = new Point(place);
-    var map = new ol.Map({
-        target: 'map',
-        layers: [
-            new ol.layer.Tile({
-                source: new ol.source.OSM()
-            })
-        ],
-        view: new ol.View({
-            // TODO autoUpdate,
-            center: ol.proj.fromLonLat([37.4783, 55.82995]),
-            zoom: 15
-        })
+    // initialize Leaflet
+    var map = L.map('map').setView({lon: 0, lat: 0}, 2);
+    // add the OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(map);
+    L.control.scale().addTo(map);
+    var home_icon = L.icon({
+        iconUrl: '/static/pic/home.svg',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        popupAnchor: [0, 0],
+        shadowUrl: 'home-shadow.svg',
+        shadowSize: [0, 0],
+        shadowAnchor: [0, 0]
     });
+    var current_icon = L.icon({
+        iconUrl: '/static/pic/current.svg',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        popupAnchor: [0, 0],
+        shadowUrl: 'current-shadow.svg',
+        shadowSize: [0, 0],
+        shadowAnchor: [0, 0]
+    });
+    // show a marker on the map
+    current_marker = L.marker([55.83995, 37.4883], {title: 'Current', icon: current_icon, opacity: 1.0}).bindPopup('Current');
+    current_marker.addTo(map);
+    home_marker = L.marker([55.82995, 37.4783], {title: 'Home', icon: home_icon, opacity: 0.8}).bindPopup('Home');
+    home_marker.addTo(map);
+    // create a red polyline from an array of LatLng points
+    var route_points = [
+        [55.82995, 37.4783],
+        [55.83995, 37.4883],
+    ];
+    var route = L.polyline(route_points, {color: 'black'});
+    route.addTo(map);
+    // zoom the map to the polyline
+    map.fitBounds(route.getBounds());
+
     var control_speed = $("#controlSpeed")
     var control_speed_num = $("#controlSpeedNum")
     var control_angle = $("#controlAngle")
@@ -87,6 +112,10 @@ $(document).ready(function(){
         set_telemetry_angle(data['angle']);
         set_telemetry_led1(data['led1']);
         set_telemetry_led2(data['led2']);
+        current_marker.setLatLng(data['current_lat_lng']);
+        home_marker.setLatLng(data['home_lat_lng']);
+        route.setLatLngs(data['route_lat_lng']);
+        map.fitBounds(route.getBounds());
     };
     var zero_control = function(){
         var data = {
