@@ -7,6 +7,7 @@ import io
 import random
 from pydantic import BaseModel
 
+from gps_track import GpsTrack
 from raspberryApi.boat_hardware import BoatHardware
 from webcamera import WebCamera
 
@@ -18,6 +19,7 @@ class Item(BaseModel):
     led2: bool
 
 
+track = GpsTrack(gps_accuracy=1e-4, track_limit=64)
 boat = BoatHardware()
 cam = WebCamera(0)
 app = FastAPI()
