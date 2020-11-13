@@ -57,14 +57,14 @@ class GpsTrack:
             raise TypeError("Only 2d coordinates point may be used")
         x, y = float(point[0]), float(point[1])
         if (len(self._track) > 1) and (self.euclid_distance(self._track[-1], (x, y)) < self._position_accuracy):
-            self._dist_total -= self.euclid_distance(self._track[-1], self._track[-2])
+            self._dist_total -= self.geograph_distance(self._track[-1], self._track[-2])
             self._track.pop()
         self._track.append((x, y))
         if len(self) == 1:
             self._home = self._track[0]
         if len(self) > 1:
-            self._dist_total += self.euclid_distance(self._track[-1], self._track[-2])
-        self._dist_to_home = self.euclid_distance(self._track[-1], self._home)
+            self._dist_total += self.geograph_distance(self._track[-1], self._track[-2])
+        self._dist_to_home = self.geograph_distance(self._track[-1], self._home)
         if self._size_limit is not None:
             if len(self._track) > self._size_limit:
                 self._track.popleft()
@@ -84,6 +84,16 @@ class GpsTrack:
     def get_home(self):
         return self._home
 
+    def get_current(self):
+        return self._track[-1] if len(self) else None
+
     @staticmethod
     def euclid_distance(p0, p1):
         return np.linalg.norm(np.asarray(p0) - np.asarray(p1))
+
+    @staticmethod
+    def geograph_distance(p0, p1):
+        return np.sqrt(np.power(DIST_PER_LATITUDE_DEGREE * (p0[0] - p1[0]), 2) +
+                       np.power(DIST_PER_LONGITUDE_DEGREE * (p0[1] - p1[1]), 2))
+
+

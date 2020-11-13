@@ -59,15 +59,15 @@ def test_home():
     assert track.get_home() is None
 
 
-def test_dist_to_home():
+def test_dist():
     track = GpsTrack(track_limit=2)
     assert track.get_home() is None
     test_track_data = [(0.5, 1.), (0.7, 0.9), (5, 4.), (5.1, 4.2), (0, 0), (-4, 3)]
     for p in test_track_data:
         track(p)
     to_home, total = track.get_distance()
-    assert to_home == track.euclid_distance(test_track_data[0], test_track_data[-1])
+    assert to_home == track.geograph_distance(test_track_data[0], test_track_data[-1])
     target_total = 0.
     for i in range(1, len(test_track_data)):
-        target_total += track.euclid_distance(test_track_data[i], test_track_data[i - 1])
+        target_total += track.geograph_distance(test_track_data[i], test_track_data[i - 1])
     assert total == target_total

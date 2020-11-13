@@ -19,7 +19,7 @@ class Item(BaseModel):
     led2: bool
 
 
-track = GpsTrack(gps_accuracy=1e-4, track_limit=64)
+track = GpsTrack(gps_accuracy=1e-5, track_limit=128)
 boat = BoatHardware()
 cam = WebCamera(0)
 app = FastAPI()
@@ -59,33 +59,32 @@ async def control(item: Item):
 
 
 def gen_route(start_point):
-    home = start_point
-    route = [home]
-    current = home
+    current = start_point
     while True:
         dx = random.random() * 0.01 - 0.005
         dy = random.random() * 0.01 - 0.005
         current = (current[0]+dx, current[1]+dy)
-        route.append(current)
-        if len(route) > 20:
-            del route[1]
-        yield current, home, route
+        yield current
 
 
-route_generator = gen_route((55.82995, 37.4783))
+point_generator = gen_route((55.82995, 37.4783))
 
 
 @app.get("/telemetry")
 async def telemetry():
     leds = boat.leds
-    current, home, route = next(route_generator)
+    track(next(point_generator))
+    curent_point = track.get_current()
+    dist_to_home, dist_total = track.get_distance()
     response = {"speed": boat.motors['left']['speed'],
                 "angle": boat.steering_wheel['angle'],
                 "led1": leds['led1']['state'],
                 "led2": leds['led2']['state'],
-                "current_lat_lng": current,
-                "home_lat_lng": home,
-                "route_lat_lng": route}
+                "current_lat_lng": curent_point if curent_point else (55.82995, 37.4783),
+                "home_lat_lng": track.get_home(),
+                "route_lat_lng": track.get_track(),
+                "dist_to_home": dist_to_home,
+                "dist_total": dist_total}
     return JSONResponse(content=jsonable_encoder(response))
 
 
