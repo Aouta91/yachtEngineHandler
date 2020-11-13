@@ -50,8 +50,12 @@ $(document).ready(function(){
     var telemetry_angle = $("#telemetryAngle")
     var telemetry_led1 = $("#telemetryLed1")
     var telemetry_led2 = $("#telemetryLed2")
+    var telemetry_dist_to_home = $("#telemetryDistToHome")
+    var telemetry_dist_total = $("#telemetryDistTotal")
     var alert_container = $("#alert-container")
     var image = $("#image")
+    var map_set_home = $("#mapSetHome")
+    var map_clear_track = $("#mapClearTrack")
     var get_control_speed = function(){return parseFloat(control_speed.val());};
     var get_control_speed_num = function(){return parseFloat(control_speed_num.html());};
     var get_control_angle = function(){return parseFloat(control_angle.val());};
@@ -68,10 +72,14 @@ $(document).ready(function(){
     var get_telemetry_angle = function(){return parseFloat(telemetry_angle.html());};
     var get_telemetry_led1 = function(){return telemetry_led1.html() == "on";};
     var get_telemetry_led2 = function(){return telemetry_led2.html() == "on";};
+    var get_telemetry_dist_to_home = function(){return parseFloat(telemetry_dist_to_home.html());};
+    var get_telemetry_dist_total = function(){return parseFloat(telemetry_dist_total.html());};
     var set_telemetry_speed = function(val){telemetry_speed.html(String(val));};
     var set_telemetry_angle = function(val){telemetry_angle.html(String(val));};
     var set_telemetry_led1 = function(val){if(val)telemetry_led1.html("on");else telemetry_led1.html("off");};
     var set_telemetry_led2 = function(val){if(val)telemetry_led2.html("on");else telemetry_led2.html("off");};
+    var set_telemetry_dist_to_home = function(val){telemetry_dist_to_home.html(String(val));};
+    var set_telemetry_dist_total = function(val){telemetry_dist_total.html(String(val));};
     var set_image = function(val){image.attr('src', val);}
     var unique_id = function(prefix) {
         return prefix + Math.floor(Math.random() * 1000) + Date.now();
@@ -112,6 +120,8 @@ $(document).ready(function(){
         set_telemetry_angle(data['angle']);
         set_telemetry_led1(data['led1']);
         set_telemetry_led2(data['led2']);
+        set_telemetry_dist_to_home(data['dist_to_home']);
+        set_telemetry_dist_total(data['dist_total']);
         current_marker.setLatLng(data['current_lat_lng']);
         home_marker.setLatLng(data['home_lat_lng']);
         route.setLatLngs(data['route_lat_lng']);
@@ -126,6 +136,22 @@ $(document).ready(function(){
         };
         update_control(data);
         submit_control();
+    };
+    var submit_map = function(set_home, clear_track){
+        data = {
+            "set_home": set_home,
+            "clear_track": clear_track,
+        };
+        str_data = JSON.stringify(data);
+        $.ajax({
+            type: 'post',
+            url: '/map',
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            data: str_data,
+            success: function(data){bootstrap_alert('success', str_data);},
+            error: function(data){bootstrap_alert('danger', str_data);}
+        });
     };
     control_speed.on('input change', function(e){
         e.preventDefault();
@@ -148,6 +174,14 @@ $(document).ready(function(){
     control_stop.on('click', function(e){
         e.preventDefault();
         zero_control();
+    });
+    map_set_home.on('click', function(e){
+        e.preventDefault();
+        submit_map(true, true);
+    });
+    map_clear_track.on('click', function(e){
+        e.preventDefault();
+        submit_map(false, true);
     });
     (function telemetry_worker(){
         $.ajax({
