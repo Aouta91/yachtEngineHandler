@@ -66,6 +66,7 @@ class GpsTrack:
             dist_to_tail = geograph_distance(self._track[-1], (x, y))
         self._track.append((x, y))
         self._distances.append(dist_to_tail + self._distances[-1])
+        self._dist_total += dist_to_tail
         self._dist_to_home = geograph_distance(self._track[-1], self._home)
 
         if self._size_limit and len(self) > self._size_limit:
@@ -73,6 +74,7 @@ class GpsTrack:
 
     def clear(self):
         self._track.clear()
+        self._distances.clear()
         self._dist_total = 0.
         self._dist_to_home = 0.
         self._home = None
@@ -93,10 +95,11 @@ class GpsTrack:
         if len(self) <= max_points or len(self) < 3:
             return self._track
         out = [self._track[0]]
-        distance_step = self._distances[-1] / (max_points - 1)
+        distance_step = (self._distances[-1] - self._distances[0]) / (max_points - 1)
         for i in range(1, max_points-1):
             desired_dist = i * distance_step
             left = np.searchsorted(self._distances, desired_dist)
+            left = min(max(0, left), len(self._track) - 2)
             out.append(self.interpolate_2d(p0=self._track[left], p1=self._track[left + 1],
                                            left=(desired_dist - self._distances[left])))
         out.append(self._track[-1])

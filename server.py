@@ -24,7 +24,7 @@ class MapRequest(BaseModel):
     clear_track: bool
 
 
-track = GpsTrack(gps_accuracy=1e-5, track_limit=128)
+track = GpsTrack(gps_accuracy_meters=10, track_length_limit=128)
 boat = BoatHardware()
 cam = WebCamera(0)
 app = FastAPI()
@@ -87,7 +87,7 @@ async def telemetry():
                 "led2": leds['led2']['state'],
                 "current_lat_lng": curent_point if curent_point else (55.82995, 37.4783),
                 "home_lat_lng": track.get_home(),
-                "route_lat_lng": track.get_track(),
+                "route_lat_lng": track.get_track(max_length=64),
                 "dist_to_home": dist_to_home,
                 "dist_total": dist_total}
     return JSONResponse(content=jsonable_encoder(response))
