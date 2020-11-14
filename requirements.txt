@@ -3,9 +3,13 @@ attrs==20.3.0
 click==7.1.2
 dataclasses==0.6
 fastapi==0.61.2
+geographiclib==1.50
+geopy==2.0.0
 h11==0.11.0
 importlib-metadata==2.0.0
 iniconfig==1.1.1
+Jinja2==2.11.2
+MarkupSafe==1.1.1
 numpy==1.19.4
 opencv-python==4.4.0.46
 packaging==20.4
@@ -17,10 +21,9 @@ pyparsing==2.4.7
 pytest==6.1.2
 PyYAML==5.3.1
 RPi.GPIO-def==0.2
+scipy==1.5.4
 six==1.15.0
-starlette==0.13.8
 toml==0.10.2
 typing-extensions==3.7.4.3
 uvicorn==0.12.2
 zipp==3.4.0
-jinja2==2.11.2
