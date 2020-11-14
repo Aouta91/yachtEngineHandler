@@ -1,5 +1,5 @@
 import pytest
-from raspberryApi import YAMLConfig, JSONConfig
+from hardware_api import YAMLConfig, JSONConfig
 
 
 def test_yaml():

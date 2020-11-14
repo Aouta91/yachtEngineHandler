@@ -1,5 +1,5 @@
 import pytest
-from raspberryApi.boat_hardware import BoatHardware
+from hardware_api.boat_hardware import BoatHardware
 
 
 def test_set_steering_wheel():
