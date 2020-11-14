@@ -8,8 +8,8 @@ import random
 from pydantic import BaseModel
 
 from gps_track import GpsTrack
-from raspberryApi.boat_hardware import BoatHardware
-from webcamera import WebCamera
+from hardware_api.boat_hardware import BoatHardware
+from hardware_api.webcamera import WebCamera
 
 
 class Item(BaseModel):
