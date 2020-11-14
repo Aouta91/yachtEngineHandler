@@ -19,6 +19,11 @@ class Item(BaseModel):
     led2: bool
 
 
+class MapRequest(BaseModel):
+    set_home: bool
+    clear_track: bool
+
+
 track = GpsTrack(gps_accuracy=1e-5, track_limit=128)
 boat = BoatHardware()
 cam = WebCamera(0)
@@ -85,6 +90,14 @@ async def telemetry():
                 "route_lat_lng": track.get_track(),
                 "dist_to_home": dist_to_home,
                 "dist_total": dist_total}
+    return JSONResponse(content=jsonable_encoder(response))
+
+
+@app.post("/map")
+async def map_(request: MapRequest):
+    if request.set_home or request.clear_track:
+        track.clear()
+    response = {'ok': True}
     return JSONResponse(content=jsonable_encoder(response))
 
 
